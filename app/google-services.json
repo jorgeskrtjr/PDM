@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "791900812513",
+    "firebase_url": "https://sapataria-c10dc-default-rtdb.firebaseio.com",
+    "project_id": "sapataria-c10dc",
+    "storage_bucket": "sapataria-c10dc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:791900812513:android:4a18b134a2326d495773a0",
+        "android_client_info": {
+          "package_name": "com.example.sapataria"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "791900812513-j8gajg78ra15bgc3qgs2lrptqe8mlj8c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCn7h-1oIRadc214AxO57nk4axr26Wa5Mk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "791900812513-j8gajg78ra15bgc3qgs2lrptqe8mlj8c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
