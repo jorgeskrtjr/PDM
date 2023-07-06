@@ -5,7 +5,7 @@ data class Pedido(val idPedido: Int, val idCliente: Int, val idProduto: Int, val
     constructor() : this(0, 0, 0, 0.0)
 
     companion object {
-        private var nextId = 1
+        private var nextId = 2
 
         fun getNextId(): Int {
             return nextId++

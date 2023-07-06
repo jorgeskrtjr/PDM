@@ -23,7 +23,7 @@ fun PedidoAddDataScreen(
 ) {
     var idCliente: String by remember { mutableStateOf("") }
     var idProduto: String by remember { mutableStateOf("") }
-    var quantidadeEstoque: String by remember { mutableStateOf("") }
+    var quantidadeEstoque: String by remember { mutableStateOf("0") }
     var descricao: String by remember { mutableStateOf("") }
     var valor: String by remember { mutableStateOf("0.0") }
     var nome: String by remember { mutableStateOf("") }
@@ -183,9 +183,9 @@ fun PedidoAddDataScreen(
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = valor,
+                value = quantidade,
                 onValueChange = {
-                    valor = it
+                    quantidade = it
                 },
                 label = {
                     Text(text = "Quantidade")
@@ -196,7 +196,6 @@ fun PedidoAddDataScreen(
                 )
             )
 
-            Text(text= "Total:  "+ "${quantidade.toInt() * valor.toDouble()}")
 
             // save Button
             Button(
@@ -208,7 +207,7 @@ fun PedidoAddDataScreen(
                         idPedido =  Pedido.getNextId(),
                         idCliente = idCliente.toInt(),
                         idProduto = idProduto.toInt(),
-                        total = quantidade.toInt() * valor.toDouble()
+                        total = 1.1
                     )
 
                     sharedViewModel.salvarPedido(pedido = pedido, context = context)
