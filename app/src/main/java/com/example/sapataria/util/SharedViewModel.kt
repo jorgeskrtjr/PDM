@@ -6,9 +6,7 @@ import android.widget.Toast
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
-import com.example.sapataria.classes.Cliente
-import com.example.sapataria.classes.Pedido
-import com.example.sapataria.classes.Produto
+import com.example.sapataria.classes.Fazenda
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
@@ -17,32 +15,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.util.*
 
 class SharedViewModel(): ViewModel() {
 
-    private val _listaClientes = mutableStateListOf<Cliente>()
-    private val _listaClientesStateFlow = MutableStateFlow<List<Cliente>>(emptyList())
-    val listaClientesStateFlow: StateFlow<List<Cliente>> = _listaClientesStateFlow
 
-    private val _listaProdutos = mutableStateListOf<Produto>()
-    private val _listaProdutosStateFlow = MutableStateFlow<List<Produto>>(emptyList())
-    val listaProdutosStateFlow: StateFlow<List<Produto>> = _listaProdutosStateFlow
 
-    init {
-        recuperarListaClientesTeste()
-        recuperarListaProdutos()
-    }
-
-    fun salvar(cliente: Cliente, context: Context)
+    fun salvar(Fazenda: Fazenda, context: Context)
     = CoroutineScope(Dispatchers.IO)
         .launch{
             val fireStoreRef = Firebase.firestore
-                .collection("clientes")
-                .document(cliente.id.toString())
+                .collection("Fazendas")
+                .document(Fazenda.id.toString())
 
             try {
 
-                fireStoreRef.set(cliente).addOnSuccessListener {
+                fireStoreRef.set(Fazenda).addOnSuccessListener {
                     Toast.makeText(context, "Successfully", Toast.LENGTH_SHORT).show()
                 }
 
@@ -52,74 +40,45 @@ class SharedViewModel(): ViewModel() {
 
         }
 
-    fun salvarProduto(produto: Produto, context: Context)
-            = CoroutineScope(Dispatchers.IO)
-        .launch{
-            val fireStoreRef = Firebase.firestore
-                .collection("produtos")
-                .document(produto.produtoId.toString())
 
-            try {
-
-                fireStoreRef.set(produto).addOnSuccessListener {
-                    Toast.makeText(context, "Successfully", Toast.LENGTH_SHORT).show()
-                }
-
-            } catch (e: Exception){
-                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
-            }
-
-        }
-
-    fun recuperarDados(
+    fun recuperarDadosPeloID(
         id: String,
+        nome: String,
         context: Context,
-        cliente: (Cliente) -> Unit
+        fazenda: (Fazenda) -> Unit
     ) = CoroutineScope(Dispatchers.IO).launch {
+        if (nome.isNotEmpty()) {
+            val firestoreRef = Firebase.firestore.collection("fazendas")
 
-        val fireStoreRef = Firebase.firestore
-            .collection("clientes")
-            .document(id)
-
-        try {
-            fireStoreRef.get()
-                .addOnSuccessListener {
-                    // for getting single or particular document
-                    if (it.exists()) {
-                        val Cliente = it.toObject<Cliente>()!!
-                        cliente(Cliente)
+            try {
+                firestoreRef.whereEqualTo("nome", nome).get().addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        val dadosFazenda = querySnapshot.documents[0].toObject<Fazenda>()!!
+                        fazenda(dadosFazenda)
                     } else {
-                        Toast.makeText(context, "No User Data Found", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Fazenda não encontrada", Toast.LENGTH_SHORT).show()
                     }
                 }
-        } catch (e: Exception) {
-            Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
-        }
-    }
+            } catch (e: Exception) {
+                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            val fireStoreRef = Firebase.firestore
+                .collection("Fazendas")
+                .document(id)
 
-    fun recuperarDadosProduto(
-        produtoId: String,
-        context: Context,
-        produto: (Produto) -> Unit
-    ) = CoroutineScope(Dispatchers.IO).launch {
-
-        val fireStoreRef = Firebase.firestore
-            .collection("produtos")
-            .document(produtoId)
-
-        try {
-            fireStoreRef.get()
-                .addOnSuccessListener {
-                    // for getting single or particular document
-                    if (it.exists()) {
-                        val Produto = it.toObject<Produto>()!!
-                        produto(Produto)
+            try {
+                fireStoreRef.get().addOnSuccessListener { documentSnapshot ->
+                    if (documentSnapshot.exists()) {
+                        val fazenda = documentSnapshot.toObject<Fazenda>()!!
+                        fazenda(fazenda)
                     } else {
-                        Toast.makeText(context, "No User Data Found", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Fazenda não encontrada", Toast.LENGTH_SHORT).show()
                     }
                 }
-        } catch (e: Exception) {
-            Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -131,7 +90,7 @@ class SharedViewModel(): ViewModel() {
     ) = CoroutineScope(Dispatchers.IO).launch{
 
         val fireStoreRef = Firebase.firestore
-            .collection("clientes")
+            .collection("Fazendas")
             .document(id)
 
 
@@ -147,116 +106,42 @@ class SharedViewModel(): ViewModel() {
                 Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
             }
         }else{
-
             Toast.makeText(context, "Usuário não consta no sistema", Toast.LENGTH_LONG).show()
-
         }
     }
 
-    fun recuperarListaClientes() = CoroutineScope(Dispatchers.IO).launch{
+    private val _listaFazendas = mutableStateListOf<Fazenda>()
+    private val _listaFazendasStateFlow = MutableStateFlow<List<Fazenda>>(emptyList())
+    val listaFazendasStateFlow: StateFlow<List<Fazenda>> = _listaFazendasStateFlow
 
-        val fireStoreRef = Firebase.firestore
 
-        fireStoreRef.collection("clientes")
-            .get()
-            .addOnSuccessListener { documents ->
-
-                val listaClientes = mutableListOf<Cliente>()
-
-                for (document in documents) {
-                    listaClientes.add(document.toObject())
-                    Log.d("testando", "${document.id} => ${document.data}")
-                }
-
-                Log.w("testando", "$listaClientes")
-
-            }
-            .addOnFailureListener { exception ->
-                Log.w("testando", "Error getting documents: ", exception)
-            }
-
+    init {
+        recuperarListaFazendasTeste()
     }
 
-    private fun recuperarListaClientesTeste() {
-        val collectionRef = Firebase.firestore.collection("clientes")
+
+    private fun recuperarListaFazendasTeste() {
+        val collectionRef = Firebase.firestore.collection("Fazendas")
 
         collectionRef.addSnapshotListener { snapshot, exception ->
             if (exception != null) {
-                Log.e("testando", "Erro ao recuperar a lista de clientes: $exception")
+                Log.e("testando", "Erro ao recuperar a lista de Fazendas: $exception")
                 return@addSnapshotListener
             }
 
             snapshot?.let { querySnapshot ->
-                val listaClientes = querySnapshot.documents.mapNotNull { document ->
-                    document.toObject<Cliente>()
+                val listaFazendas = querySnapshot.documents.mapNotNull { document ->
+                    document.toObject<Fazenda>()
                 }
-                _listaClientes.clear()
-                _listaClientes.addAll(listaClientes)
-                _listaClientesStateFlow.value = listaClientes
+                _listaFazendas.clear()
+                _listaFazendas.addAll(listaFazendas)
+                _listaFazendasStateFlow.value = listaFazendas
             }
         }
     }
 
 
-    private fun recuperarListaProdutos() {
 
-        val collectionRef = Firebase.firestore.collection("produtos")
-
-        collectionRef.addSnapshotListener { snapshot, exception ->
-            if (exception != null) {
-                Log.e("testando", "Erro ao recuperar a lista de produtos: $exception")
-                return@addSnapshotListener
-            }
-
-            snapshot?.let { querySnapshot ->
-                val listaProdutos = querySnapshot.documents.mapNotNull { document ->
-                    document.toObject<Produto>()
-                }
-                _listaProdutos.clear()
-                _listaProdutos.addAll(listaProdutos)
-                _listaProdutosStateFlow.value = listaProdutos
-            }
-        }
-    }
-
-    fun salvarPedido(pedido: Pedido, context: Context) {
-
-        val fireStoreRefClientes = Firebase.firestore
-            .collection("clientes")
-            .document(pedido.idCliente.toString())
-
-        val fireStoreRefProdutos = Firebase.firestore
-            .collection("produtos")
-            .document(pedido.idProduto.toString())
-
-        val fireStoreRef = Firebase.firestore
-            .collection("pedidos")
-            .document(pedido.idPedido.toString())
-
-        try {
-            fireStoreRefClientes.get()
-                .addOnSuccessListener {
-                    // for getting single or particular document
-                    if (it.exists()) {
-                        Toast.makeText(context, "passou o cliente", Toast.LENGTH_SHORT).show()
-                        fireStoreRefClientes.get() .addOnSuccessListener {
-                            if(it.exists()){
-                                fireStoreRef.set(pedido).addOnSuccessListener {
-                                    Toast.makeText(context, "Successfully", Toast.LENGTH_SHORT).show()
-                                }
-                            }else{
-                                Toast.makeText(context, "Esse produto não foi cadastrado", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    } else {
-                        Toast.makeText(context, "Esse cliente não foi cadastrado", Toast.LENGTH_SHORT).show()
-                    }
-                }
-        } catch (e: Exception) {
-            Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
-        }
-
-    }
 
 
 }

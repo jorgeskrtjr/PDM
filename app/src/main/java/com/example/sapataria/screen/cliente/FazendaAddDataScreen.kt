@@ -1,4 +1,4 @@
-package com.example.sapataria.screen.pedido
+package com.example.sapataria.screen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -18,18 +18,18 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.sapataria.util.SharedViewModel
-import com.example.sapataria.classes.Produto
-import java.util.*
+import com.example.sapataria.classes.Fazenda
 
 @Composable
-fun ProdutoAddDataScreen(
+fun FazendaAddDataScreen(
     navController: NavController,
     sharedViewModel: SharedViewModel
 ) {
-    var descricao: String by remember { mutableStateOf("") }
-    var valor: String  by remember { mutableStateOf("") }
-    var quantidade: String by remember { mutableStateOf("") }
+    var id: String by remember { mutableStateOf("") }
     var nome: String by remember { mutableStateOf("") }
+    var valor: String by remember { mutableStateOf("") }
+    var quantidade: String by remember { mutableStateOf("") }
+
 
     val context = LocalContext.current
 
@@ -56,16 +56,31 @@ fun ProdutoAddDataScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-
+            // userID
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = descricao,
+                value = id,
                 onValueChange = {
-                    descricao = it
+                    id = it
                 },
 
                 label = {
-                    Text(text = "Descrição")
+                    Text(text = "UserID")
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                )
+            )
+
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = nome,
+                onValueChange = {
+                    nome = it
+                },
+                        label = {
+                    Text(text = "Name")
                 },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
@@ -80,10 +95,10 @@ fun ProdutoAddDataScreen(
                     valor = it
                 },
                 label = {
-                    Text(text = "Valor")
+                    Text(text = "Valor da fazenda")
                 },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
+                    keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 )
             )
@@ -94,9 +109,8 @@ fun ProdutoAddDataScreen(
                 onValueChange = {
                     quantidade = it
                 },
-
                 label = {
-                    Text(text = "Quantidade")
+                    Text(text = "Quantidade de funcionários")
                 },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
@@ -104,19 +118,20 @@ fun ProdutoAddDataScreen(
                 )
             )
 
+            // save Button
             Button(
                 modifier = Modifier
                     .padding(top = 50.dp)
                     .fillMaxWidth(),
                 onClick = {
-                    val produto = Produto(
-                        produtoId = Produto.getNextId(),
-                        descricao = descricao,
-                        valor =  valor.toDouble(),
-                        quantidade = quantidade.toInt()
+                    val fazenda = Fazenda(
+                        id = id.toInt(),
+                        nome = nome,
+                        valorDaPropiedade = valor.toDouble(),
+                        qtdFuncionarios = quantidade.toInt()
                     )
 
-                    sharedViewModel.salvarProduto(produto = produto, context = context)
+                    sharedViewModel.salvar(Fazenda = fazenda, context = context)
                 }
             ) {
                 Text(text = "Save")

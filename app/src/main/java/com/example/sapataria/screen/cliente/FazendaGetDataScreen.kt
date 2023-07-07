@@ -13,17 +13,17 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.sapataria.classes.Cliente
+import com.example.sapataria.classes.Fazenda
 import com.example.sapataria.util.SharedViewModel
 
 @Composable
-fun ClienteGetDataScreen(
+fun FazendaGetDataScreen(
     navController: NavController,
     sharedViewModel: SharedViewModel
 ) {
     var id: String by remember { mutableStateOf("") }
     var nome: String by remember { mutableStateOf("") }
-    var telefone: String by remember { mutableStateOf("") }
+    var qtdFuncionarios: String by remember { mutableStateOf("") }
 
     val context = LocalContext.current
 
@@ -70,13 +70,17 @@ fun ClienteGetDataScreen(
                         .padding(start = 10.dp)
                         .width(100.dp),
                     onClick = {
-                        sharedViewModel.recuperarDados(
-                            id = id,
-                            context = context
-                        ) { cliente ->
-                            nome = cliente.nome
-                            telefone = cliente.telefone
-                        }
+
+                            sharedViewModel.recuperarDadosPeloID(
+                                id = id,
+                                nome = nome,
+                                context = context
+                            ) { Fazenda ->
+                                nome = Fazenda.nome
+                                qtdFuncionarios = Fazenda.qtdFuncionarios.toString()
+                            }
+
+
                     }
                 ) {
                     Text(text = "Buscar")
@@ -98,12 +102,12 @@ fun ClienteGetDataScreen(
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = telefone,
+                value = qtdFuncionarios,
                 onValueChange = {
-                    telefone = it
+                    qtdFuncionarios = it
                 },
                 label = {
-                    Text(text = "Telefone")
+                    Text(text = "Quantidade de funcionários")
                 },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
@@ -115,13 +119,14 @@ fun ClienteGetDataScreen(
                     .padding(top = 50.dp)
                     .fillMaxWidth(),
                 onClick = {
-                    val cliente = Cliente(
+                    val Fazenda = Fazenda(
                         id = id.toInt(),
                         nome = nome,
-                        telefone = telefone
+                        valorDaPropiedade = 0.0,
+                        qtdFuncionarios = 0
                     )
 
-                    sharedViewModel.salvar(cliente = cliente, context = context)
+                    sharedViewModel.salvar(Fazenda = Fazenda, context = context)
                 }
             ) {
                 Text(text = "Salvar")

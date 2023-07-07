@@ -24,8 +24,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
 
-            sharedViewModel.recuperarListaClientes()
-
             SapatariaTheme {
 
                 Surface(
